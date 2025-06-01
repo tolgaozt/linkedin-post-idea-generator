@@ -71,7 +71,7 @@ This Python Flask web application automates the generation of LinkedIn posts and
 
 1.  **Clone the Repository (or download the files):**
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/tolgaozt/linkedin-post-idea-generator.git
     cd ai-linkedin-blog-generator
     ```
     (If you don't have a repo yet, just navigate to the directory where you have `app.py` and other files).
@@ -91,6 +91,7 @@ This Python Flask web application automates the generation of LinkedIn posts and
     ```
 
 4.  **Create the Environment File (`.env`):**
+    (Or duplicate "env.example" and rename it ".env")
     In the root directory of the project, create a file named `.env` and add the following, replacing the placeholder values with your actual credentials and preferences:
 
     ```env
