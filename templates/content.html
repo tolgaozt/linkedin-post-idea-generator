@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Generator - Generated Content</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* ... (your existing styles) ... */
+        .flash-messages { list-style-type: none; padding: 0; margin: 0; }
+        .flash-messages li { padding: 10px; margin-bottom: 10px; border-radius: 3px; }
+        .flash-messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .flash-messages .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .translate-button { background-color: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 3px; border:none; cursor:pointer; font-size: 1em; margin-top:10px; }
+        .translate-button:hover { background-color: #218838; }
+        .content-section { margin-bottom: 30px; }
+        .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .lang-column h3 { margin-top: 0; }
+        @media (max-width: 768px) {
+            .lang-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <h1>Generated Content for: {{ idea_title }}</h1>
+        <p>(Based on topic: {{ topic_title }})</p>
+        <p><a href="{{ url_for('index') }}">Start Over</a></p>
+
+        {% if not translated_content %}
+        <form action="{{ url_for('translate_content') }}" method="post" style="margin-bottom: 20px;">
+            <button type="submit" class="translate-button">Translate to French</button>
+        </form>
+        {% endif %}
+
+        <div class="lang-grid">
+            <div class="lang-column">
+                <h3>English Version</h3>
+                <div class="content-section">
+                    <h4>LinkedIn Post (English)</h4>
+                    <textarea id="linkedin-post-text-en" readonly>{{ linkedin_post_en }}</textarea>
+                    <button class="copy-button" onclick="copyToClipboard('linkedin-post-text-en')">Copy English LinkedIn Post</button>
+                </div>
+
+                <div class="content-section">
+                    <h4>Blog Article (English - Markdown)</h4>
+                    <p>Blog URL (EN): <a href="{{ full_blog_url_en }}" target="_blank">{{ full_blog_url_en }}</a> (Tag: {{ blog_link_tag_en }})</p>
+                    <textarea id="blog-article-markdown-en" readonly>{{ blog_article_en }}</textarea>
+                    <button class="copy-button" onclick="copyToClipboard('blog-article-markdown-en')">Copy English Blog Article</button>
+                    <h5>Preview (EN):</h5>
+                    <div class="content-box" id="blog-preview-en"></div>
+                </div>
+            </div>
+
+            {% if translated_content %}
+            <div class="lang-column">
+                <h3>French Version</h3>
+                <div class="content-section">
+                    <h4>LinkedIn Post (Français)</h4>
+                    <textarea id="linkedin-post-text-fr" readonly>{{ translated_content.linkedin_post_fr }}</textarea>
+                    <button class="copy-button" onclick="copyToClipboard('linkedin-post-text-fr')">Copier le post LinkedIn (FR)</button>
+                </div>
+
+                <div class="content-section">
+                    <h4>Article de Blog (Français - Markdown)</h4>
+                    <p>URL du Blog (FR): <a href="{{ translated_content.full_blog_url_fr }}" target="_blank">{{ translated_content.full_blog_url_fr }}</a> (Tag: {{ translated_content.blog_link_tag_fr }})</p>
+                    <textarea id="blog-article-markdown-fr" readonly>{{ translated_content.blog_article_fr }}</textarea>
+                    <button class="copy-button" onclick="copyToClipboard('blog-article-markdown-fr')">Copier l'article de blog (FR)</button>
+                    <h5>Aperçu (FR):</h5>
+                    <div class="content-box" id="blog-preview-fr"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <script>
+        function copyToClipboard(elementId) {
+            const textArea = document.getElementById(elementId);
+            textArea.select();
+            textArea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                alert('Content copied!');
+            } catch (err) {
+                alert('Failed to copy text. Please copy manually.');
+            }
+        }
+
+        function renderMarkdown(markdownText, previewElementId) {
+            const previewElement = document.getElementById(previewElementId);
+            if (markdownText && markdownText.toLowerCase().indexOf("error: could not generate") === -1 && markdownText.toLowerCase().indexOf("error: could not translate") === -1) {
+                const converter = new showdown.Converter({
+                    ghCompatibleHeaderId: true, simpleLineBreaks: true, tables: true, tasklists: true, strikethrough: true
+                });
+                const html = converter.makeHtml(markdownText);
+                previewElement.innerHTML = html;
+            } else {
+                previewElement.innerHTML = "<p><em>No content to preview or error in generation/translation.</em></p>";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMarkdown(document.getElementById('blog-article-markdown-en').value, 'blog-preview-en');
+            {% if translated_content and translated_content.blog_article_fr %}
+            renderMarkdown(document.getElementById('blog-article-markdown-fr').value, 'blog-preview-fr');
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

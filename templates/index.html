@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Generator - Select Topic</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Select a Topic</h1>
+        <form action="{{ url_for('generate_ideas') }}" method="post">
+            <label for="topic_title">Choose a topic:</label>
+            <select name="topic_title" id="topic_title" required>
+                {% for topic in topics %}
+                <option value="{{ topic.title }}">{{ topic.category | capitalize }} - {{ topic.title }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Generate LinkedIn Post Ideas</button>
+        </form>
+    </div>
+</body>
+</html>
